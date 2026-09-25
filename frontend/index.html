@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>Evidence Recovery Workspace</title>
+  <link rel="stylesheet" href="/frontend/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to workspace</a>
+
+  <header class="topbar">
+    <div class="brand" aria-label="Evidence recovery workspace">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>EVIDENCE<span class="brand-slash">//</span>RECOVERY</span>
+    </div>
+
+    <div class="system-state" aria-live="polite">
+      <span id="healthDot" class="status-dot checking"></span>
+      <span id="healthText">Checking analysis service</span>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="rail" aria-label="Workflow">
+      <div class="case-tag">CASE WORKSPACE</div>
+      <nav class="workflow">
+        <a class="workflow-step active" href="#intake">
+          <span>01</span><b>Intake</b>
+        </a>
+        <a class="workflow-step" href="#findings">
+          <span>02</span><b>Findings</b>
+        </a>
+        <a class="workflow-step" href="#investigator">
+          <span>03</span><b>Investigator</b>
+        </a>
+      </nav>
+
+      <div class="rail-footer">
+        <span class="eyebrow">ANALYSIS MODE</span>
+        <strong>Read-only evidence</strong>
+        <p>Files are sent to the recovery service for deterministic analysis.</p>
+      </div>
+    </aside>
+
+    <main id="workspace" class="workspace">
+      <section class="hero" aria-labelledby="pageTitle">
+        <div>
+          <p class="eyebrow accent">FORENSIC RECOVERY CONSOLE</p>
+          <h1 id="pageTitle">Build a defensible view<br>of fragmented evidence.</h1>
+          <p class="hero-copy">Load the available fragments. The recovery engine will identify formats, estimate their sequence, reconstruct eligible evidence, and record the integrity findings.</p>
+        </div>
+        <div class="hero-code" aria-label="Supported artifact types">
+          <span>SUPPORTED MARKERS</span>
+          <b>JPEG&nbsp;&nbsp; PNG&nbsp;&nbsp; PDF&nbsp;&nbsp; ZIP</b>
+        </div>
+      </section>
+
+      <section id="intake" class="intake-layout" aria-labelledby="intakeTitle">
+        <div class="panel upload-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">01 / EVIDENCE INTAKE</p>
+              <h2 id="intakeTitle">Add the fragment set</h2>
+            </div>
+            <span id="fileCount" class="count-badge">0 FILES</span>
+          </div>
+
+          <input id="fileInput" type="file" multiple hidden>
+          <div id="dropZone" class="drop-zone" role="button" tabindex="0" aria-describedby="dropHint">
+            <div class="upload-glyph" aria-hidden="true">↑</div>
+            <strong>Drop files here</strong>
+            <span>or <button id="browseButton" class="text-button" type="button">browse your device</button></span>
+            <small id="dropHint">Multiple files are accepted. Files are analyzed together as one evidence set.</small>
+          </div>
+
+          <div id="emptyQueue" class="empty-queue">
+            <span aria-hidden="true">⌁</span>
+            Your selected evidence will appear here.
+          </div>
+          <ul id="fileQueue" class="file-queue" aria-label="Selected evidence files"></ul>
+
+          <div class="intake-actions">
+            <button id="clearButton" class="button button-secondary" type="button" disabled>Clear selection</button>
+            <button id="analyzeButton" class="button button-primary" type="button" disabled>
+              <span>Analyze evidence</span><span aria-hidden="true">→</span>
+            </button>
+          </div>
+          <p id="uploadStatus" class="status-message" aria-live="polite"></p>
+        </div>
+
+        <aside class="panel protocol-panel" aria-label="Analysis protocol">
+          <p class="eyebrow">CHAIN OF ANALYSIS</p>
+          <ol class="protocol-list">
+            <li><span>01</span><div><b>Fingerprint</b><p>Inspect supplied headers and binary markers.</p></div></li>
+            <li><span>02</span><div><b>Relate</b><p>Score potential fragment boundaries and filename sequences.</p></div></li>
+            <li><span>03</span><div><b>Validate</b><p>Verify recovered structures before presenting findings.</p></div></li>
+          </ol>
+          <p class="protocol-note">The interface reports the engine’s findings. A recovery result is not a claim of source or authenticity.</p>
+        </aside>
+      </section>
+
+      <section id="findings" class="findings-section" aria-labelledby="findingsTitle" hidden>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">02 / RECOVERY FINDINGS</p>
+            <h2 id="findingsTitle">Evidence set assessment</h2>
+          </div>
+          <div id="resultPill" class="result-pill">AWAITING ANALYSIS</div>
+        </div>
+
+        <div id="resultSummary" class="metric-grid" aria-label="Analysis summary"></div>
+
+        <div class="findings-grid">
+          <article class="panel findings-card order-card">
+            <div class="card-title-row"><h3>Fragment sequence</h3><span id="orderConfidence" class="confidence-label"></span></div>
+            <p id="orderDescription" class="muted-copy">No ordering result is available.</p>
+            <div id="fragmentSequence" class="fragment-sequence"></div>
+            <div id="unmatchedFragments" class="unmatched" hidden></div>
+          </article>
+
+          <article class="panel findings-card integrity-card">
+            <div class="card-title-row"><h3>Integrity assessment</h3><span id="integrityBadge" class="mini-badge">—</span></div>
+            <div id="integrityDetails" class="integrity-details"></div>
+          </article>
+
+          <article class="panel findings-card files-card">
+            <div class="card-title-row"><h3>Artifact inventory</h3><span id="inventoryCount" class="mini-badge">0 FILES</span></div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>File</th><th>Format</th><th>Fragment role</th><th>Size</th></tr></thead>
+              <tbody id="inventoryBody"></tbody>
+            </table></div>
+          </article>
+
+          <article class="panel findings-card explanation-card">
+            <div class="card-title-row"><h3>Investigator brief</h3><span class="mini-badge">ENGINE SUMMARY</span></div>
+            <p id="explanationText" class="explanation-text"></p>
+            <div id="priorityReasons" class="reason-list"></div>
+          </article>
+        </div>
+
+        <details class="raw-details">
+          <summary>View response record <span>JSON</span></summary>
+          <div class="raw-actions"><button id="copyJsonButton" class="text-button" type="button">Copy record</button><span id="copyState"></span></div>
+          <pre id="rawJson"></pre>
+        </details>
+      </section>
+
+      <section id="investigator" class="investigator-section" aria-labelledby="investigatorTitle" hidden>
+        <div class="section-heading investigator-heading">
+          <div>
+            <p class="eyebrow">03 / INVESTIGATOR ASSISTANT</p>
+            <h2 id="investigatorTitle">Question the analysis</h2>
+          </div>
+          <span id="assistantMode" class="assistant-mode">CONTEXT READY</span>
+        </div>
+        <div class="panel chat-panel">
+          <div id="chatMessages" class="chat-messages" aria-live="polite">
+            <div class="chat-message assistant-message">
+              <span class="message-label">ANALYST</span>
+              <p>Ask about fragment ordering, markers, integrity signals, the recovered artifact, or recommended next checks. Answers are grounded in the active evidence set.</p>
+            </div>
+          </div>
+          <form id="questionForm" class="question-form">
+            <label class="sr-only" for="questionInput">Ask about the evidence</label>
+            <input id="questionInput" type="text" autocomplete="off" placeholder="e.g. Why is part 3 the final fragment?" maxlength="600">
+            <button id="askButton" class="button button-primary" type="submit">Ask <span aria-hidden="true">↗</span></button>
+          </form>
+        </div>
+      </section>
+
+      <footer class="workspace-footer">
+        <span>AI-ASSISTED DATA RECOVERY</span>
+        <a href="/api-docs" target="_blank" rel="noreferrer">API documentation ↗</a>
+      </footer>
+    </main>
+  </div>
+
+  <script src="/frontend/app.js" defer></script>
+</body>
+</html>

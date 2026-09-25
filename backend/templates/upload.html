@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI-Assisted Data Recovery</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #1f2937;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+
+        .upload-box {
+            border: 2px dashed #3b82f6;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            background: #f8fbff;
+        }
+
+        input[type="file"] {
+            margin: 20px 0;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 13px 25px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #fileList {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .file {
+            padding: 8px;
+            background: #f3f4f6;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+
+        #status {
+            margin-top: 25px;
+            font-weight: bold;
+        }
+
+        pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            text-align: left;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>AI-Assisted Data Recovery System</h1>
+
+    <p class="subtitle">
+        Upload fragmented or corrupted digital evidence for analysis and reconstruction.
+    </p>
+
+    <div class="upload-box">
+
+        <h3>Select Evidence Files</h3>
+
+        <!-- IMPORTANT: multiple allows selecting several files -->
+        <input
+            type="file"
+            id="files"
+            name="files"
+            multiple
+        >
+
+        <div id="fileList"></div>
+
+        <br>
+
+        <button onclick="uploadFiles()">
+            Analyze Evidence
+        </button>
+
+        <div id="status"></div>
+
+        <pre id="result"></pre>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const fileInput = document.getElementById("files");
+
+const fileList = document.getElementById("fileList");
+
+
+// Display selected files
+fileInput.addEventListener("change", function () {
+
+    fileList.innerHTML = "";
+
+    if (fileInput.files.length === 0) {
+        return;
+    }
+
+    for (const file of fileInput.files) {
+
+        const div = document.createElement("div");
+
+        div.className = "file";
+
+        div.textContent =
+            file.name +
+            " (" +
+            file.size +
+            " bytes)";
+
+        fileList.appendChild(div);
+    }
+});
+
+
+// Upload files to FastAPI
+async function uploadFiles() {
+
+    const files = fileInput.files;
+
+    const status =
+        document.getElementById("status");
+
+    const result =
+        document.getElementById("result");
+
+
+    if (files.length === 0) {
+
+        status.textContent =
+            "Please select at least one file.";
+
+        return;
+    }
+
+
+    status.textContent =
+        "Uploading and analyzing evidence...";
+
+    result.textContent = "";
+
+
+    const formData = new FormData();
+
+
+    // Add ALL selected files
+    for (const file of files) {
+
+        formData.append(
+            "files",
+            file
+        );
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "/api/evidence/upload",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            status.textContent =
+                "Upload failed.";
+
+            result.textContent =
+                JSON.stringify(
+                    data,
+                    null,
+                    2
+                );
+
+            return;
+        }
+
+
+        status.textContent =
+            "Evidence analyzed successfully.";
+
+        result.textContent =
+            JSON.stringify(
+                data,
+                null,
+                2
+            );
+
+    }
+
+    catch (error) {
+
+        status.textContent =
+            "Error connecting to backend.";
+
+        result.textContent =
+            error.toString();
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
